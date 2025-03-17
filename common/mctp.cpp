@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "mctp.hpp"
+#include "i2c/i2c.h"
 
 extern "C" {
 #include "libmctp.h"
@@ -54,6 +55,13 @@ static void MCTP::rx(uint8_t src_eid, bool tag_owner, uint8_t msg_tag,
 
 static int MCTP::tx(const void *buf, size_t len, void *ctx) {
     auto data = reinterpret_cast<const uint8_t *>(buf);
+
+    int bus;
+    if ((bus = i2c_open("/dev/i2c-1")) == -1) {
+
+        printf("libi2c error\n");
+    }
+
     printf("antes   ");
     for (size_t i = 0; i < len; i++) {
         printf("%d ", data[i]);
