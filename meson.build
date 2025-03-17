@@ -12,12 +12,13 @@ project(
     ],
 )
 
+add_project_arguments(['-Wno-unused-parameter'], language: 'cpp')
+
 # Wno-psabi reduces the number of "Note:" messages when cross-compiling some STL
 # stuff for ARM. See https://stackoverflow.com/questions/48149323/strange-gcc-warning-when-compiling-qt-project
 # Basically, gcc 6 and gcc 7 are not ABI compatible, but since the whole OpenBMC
 # project uses the same compiler, we can safely ignmore these info notes.
 add_project_arguments('-Wno-psabi', language: 'cpp')
-
 
 # Disable FORTIFY_SOURCE when compiling with no optimization
 if (get_option('optimization') == '0')
@@ -141,8 +142,7 @@ conf_data.set('SENSOR_POLLING_TIME', get_option('sensor-polling-time'))
 configure_file(output: 'config.h', configuration: conf_data)
 
 add_project_arguments(
-    '-include',
-    '@0@'.format(meson.current_build_dir() / 'config.h'),
+    '-include', '@0@'.format(meson.current_build_dir() / 'config.h'),
     language: 'cpp',
 )
 
@@ -195,13 +195,18 @@ if get_option('oem-ampere').allowed()
     add_project_arguments('-DOEM_AMPERE', language: 'cpp')
 endif
 
+libmctp_proj = subproject('libmctp', default_options: ['fileio=enabled', 'nolog=false'])
+libmctp_dep = libmctp_proj.get_variable('libmctp_dep')
+
 libpldmutils_headers = ['.']
 libpldmutils = library(
     'pldmutils',
     'common/transport.cpp',
     'common/utils.cpp',
+    'common/mctp.cpp',
     version: meson.project_version(),
     dependencies: [
+        libmctp_dep,
         libpldm_dep,
         phosphor_dbus_interfaces,
         phosphor_logging_dep,

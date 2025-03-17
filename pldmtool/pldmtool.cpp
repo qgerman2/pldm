@@ -8,6 +8,8 @@
 
 #include <CLI/CLI.hpp>
 
+#include "common/mctp.hpp"
+
 namespace pldmtool
 {
 
@@ -65,6 +67,9 @@ void registerCommand(CLI::App& app)
 
 int main(int argc, char** argv)
 {
+
+    MCTP::init();
+
     CLI::App app{"PLDM requester tool for OpenBMC"};
     app.require_subcommand(1)->ignore_case();
 

@@ -14,9 +14,6 @@ if get_option('oem-ibm').allowed()
     sources += ['oem/ibm/pldm_oem_ibm.cpp']
 endif
 
-libmctp_proj = subproject('libmctp', default_options: ['nolog=false'])
-libmctp_dep = libmctp_proj.get_variable('libmctp_dep')
-
 executable(
     'pldmtool',
     sources,
@@ -24,7 +21,6 @@ executable(
     include_directories: include_directories(libpldm_headers),
     dependencies: [
         CLI11_dep,
-        libmctp_dep,
         libpldm_dep,
         libpldmutils,
         nlohmann_json_dep,

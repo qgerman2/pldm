@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <ranges>
 #include <system_error>
+#include <iostream>
+
+#include "mctp.hpp"
 
 struct pldm_transport* transport_impl_init(TransportImpl& impl, pollfd& pollfd);
 void transport_impl_destroy(TransportImpl& impl);
@@ -122,16 +125,16 @@ void transport_impl_destroy(TransportImpl& impl)
 
 PldmTransport::PldmTransport()
 {
-    transport = transport_impl_init(impl, pfd);
-    if (!transport)
-    {
-        throw std::system_error(ENOMEM, std::generic_category());
-    }
+    // transport = transport_impl_init(impl, pfd);
+    // if (!transport)
+    // {
+    //     throw std::system_error(ENOMEM, std::generic_category());
+    // }
 }
 
 PldmTransport::~PldmTransport()
 {
-    transport_impl_destroy(impl);
+    // transport_impl_destroy(impl);
 }
 
 int PldmTransport::getEventSource() const
@@ -154,5 +157,9 @@ pldm_requester_rc_t PldmTransport::recvMsg(pldm_tid_t& tid, void*& rx,
 pldm_requester_rc_t PldmTransport::sendRecvMsg(
     pldm_tid_t tid, const void* tx, size_t txLen, void*& rx, size_t& rxLen)
 {
-    return pldm_transport_send_recv_msg(transport, tid, tx, txLen, &rx, &rxLen);
+    std::cout << "send receive\n";
+    MCTP::send(tid, reinterpret_cast<const uint8_t*>(tx), txLen);
+
+    std::cout << tid << tx << txLen << rx << rxLen << std::endl;
+    return pldm_requester_rc_t::PLDM_REQUESTER_RECV_FAIL;
 }
